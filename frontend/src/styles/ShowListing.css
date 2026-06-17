@@ -71,7 +71,7 @@
 /* ── Listing Image ────────────────────────────────────────── */
 .show-hero-img {
   width: 100%;
-  max-height: 460px;
+  height: 460px;
   object-fit: cover;
   display: block;
   background: #e8e8e8;
@@ -99,7 +99,20 @@
   }
   .show-sidebar {
     position: sticky;
-    top: 90px;
+    top: 100px;
+  }
+}
+
+@media (max-width: 640px) {
+  .show-hero-img {
+    height: 320px;
+    border-radius: 0;
+    margin-left: -16px;
+    margin-right: -16px;
+    width: calc(100% + 32px);
+  }
+  .show-content {
+    padding: 24px 16px 60px;
   }
 }
 
@@ -108,9 +121,7 @@
   flex-direction: column;
 }
 
-.show-sidebar {
-  position: relative;
-}
+
 /* ── Header Row (title + actions) ────────────────────────── */
 .show-header {
   display: flex;

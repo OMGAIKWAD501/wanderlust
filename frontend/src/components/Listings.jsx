@@ -247,11 +247,12 @@ function Listings() {
                 >
                   <div className="listing-card">
                     <div className="listing-img-wrapper">
-                      <img
-                        src={listing.image?.url}
+                     <img
+                        src={listing.image?.url?.replace(
+                        )}
                         className="listing-img"
                         alt={listing.title}
-                      />
+                     />
                     </div>
                     <div className="listing-info">
                       <div className="listing-info-row">

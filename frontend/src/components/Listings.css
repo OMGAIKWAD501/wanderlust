@@ -163,13 +163,13 @@
 /* ─── Grid ───────────────────────────────────────────────── */
 .listings-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
 }
 
 @media (max-width: 1024px) {
   .listings-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -206,6 +206,7 @@
   background: #ffffff;
   transition: box-shadow 0.25s ease, transform 0.25s ease;
   cursor: pointer;
+  height: 100%;
 }
 
 .listing-card:hover {
@@ -217,7 +218,7 @@
 .listing-img-wrapper {
   position: relative;
   width: 100%;
-  padding-top: 95%; /* near 1:1 aspect ratio, slightly wider */
+  padding-bottom: 75%;
   overflow: hidden;
   background: #f0f0f0;
   border-radius: 14px;
