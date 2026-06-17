@@ -28,8 +28,7 @@
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  flex-shrink: 0;
-  min-width: 130px;
+  flex: 1;
 }
 
 .navbar-brand:hover .brand-text {
@@ -53,8 +52,8 @@
 
 /* ─── Center Search Bar ──────────────────────────────────── */
 .navbar-search {
-  flex: 1;
-  max-width: 430px;
+  flex: 0 1 430px;
+  height: 48px;
   display: flex;
   align-items: center;
   border: 1px solid #dddddd;
@@ -71,9 +70,10 @@
 
 .search-input {
   flex: 1;
+  height: 100%;
   border: none;
   outline: none;
-  padding: 13px 18px;
+  padding: 0 18px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 14px;
   font-weight: 400;
@@ -89,9 +89,11 @@
 .search-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 9px 16px 9px 13px;
-  margin: 5px 5px 5px 0;
+  height: 38px;
+  padding: 0 16px;
+  margin-right: 5px;
   background: #FF385C;
   color: #ffffff;
   border: none;
@@ -114,8 +116,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  flex-shrink: 0;
-  min-width: 130px;
+  flex: 1;
   justify-content: flex-end;
 }
 
@@ -293,14 +294,22 @@
   .brand-text {
     display: none;
   }
+  .navbar-brand {
+    flex: initial;
+  }
+  .navbar-auth {
+    flex: initial;
+  }
   .navbar-search {
-    max-width: 100%;
+    flex: 1;
   }
   .search-btn-text {
     display: none;
   }
   .search-btn {
-    padding: 10px;
+    padding: 0 10px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
   }
 }
