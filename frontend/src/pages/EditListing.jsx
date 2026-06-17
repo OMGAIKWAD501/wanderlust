@@ -77,6 +77,8 @@ function EditListing() {
       
       if (newImageFile) {
         formData.append("image", newImageFile);
+      } else if (newImagePreview && !newImagePreview.startsWith("blob:") && newImagePreview !== existingImageUrl) {
+        formData.append("imageUrl", newImagePreview);
       }
 
       await axios.put(

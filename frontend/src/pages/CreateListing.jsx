@@ -58,10 +58,8 @@ function CreateListing() {
       
       if (imageFile) {
         formData.append("image", imageFile);
-      } else if (imagePreview) {
-        // If it's a direct URL string, we just append it as text.
-        // On the backend we'd need to handle this manually, but for now Cloudinary mostly needs actual files.
-        // We'll just let the backend fallback to default if no file.
+      } else if (imagePreview && !imagePreview.startsWith("blob:")) {
+        formData.append("imageUrl", imagePreview);
       }
 
       await axios.post(

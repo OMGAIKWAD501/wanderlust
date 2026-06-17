@@ -92,6 +92,8 @@ router.post(
 
     if (req.file) {
       req.body.listing.image = { url: req.file.path, filename: req.file.filename };
+    } else if (req.body.imageUrl) {
+      req.body.listing.image = { url: req.body.imageUrl, filename: "default" };
     }
 
     let result = listingSchema.validate(req.body);
@@ -144,6 +146,8 @@ router.put(
 
     if (req.file) {
       req.body.listing.image = { url: req.file.path, filename: req.file.filename };
+    } else if (req.body.imageUrl) {
+      req.body.listing.image = { url: req.body.imageUrl, filename: "default" };
     }
 
     const updatedListing = await Listing.findByIdAndUpdate(
