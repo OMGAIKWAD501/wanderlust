@@ -230,6 +230,25 @@
   min-height: 110px;
 }
 
+/* Input with symbol */
+.input-with-symbol {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currency-symbol {
+  position: absolute;
+  left: 14px;
+  color: #666;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.input-with-symbol .form-input {
+  padding-left: 28px;
+}
+
 /* Two-column row */
 .form-row {
   display: grid;

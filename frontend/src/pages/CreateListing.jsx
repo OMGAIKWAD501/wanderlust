@@ -203,16 +203,19 @@ function CreateListing() {
           {/* ── Price ───────────────────────────────── */}
           <div className="form-group">
             <label className="form-label">Price per Night (₹)</label>
-            <input
-              type="number"
-              name="price"
-              className="form-input"
-              placeholder="e.g. 4000"
-              value={listing.price}
-              onChange={handleChange}
-              min="0"
-              required
-            />
+            <div className="input-with-symbol">
+              <span className="currency-symbol">₹</span>
+              <input
+                type="number"
+                name="price"
+                className="form-input"
+                placeholder="e.g. 4000"
+                value={listing.price}
+                onChange={handleChange}
+                min="0"
+                required
+              />
+            </div>
           </div>
 
           {/* ── Category ────────────────────────────── */}
