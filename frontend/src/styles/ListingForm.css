@@ -1,0 +1,275 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* ─── Page wrapper ───────────────────────────────────────── */
+.form-page {
+  min-height: calc(100vh - 64px);
+  background: #f8f8f8;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px 80px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.form-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #ebebeb;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  padding: 40px 44px;
+  width: 100%;
+  max-width: 620px;
+}
+
+.form-card h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #111111;
+  margin: 0 0 32px;
+  letter-spacing: -0.4px;
+  text-align: left;
+}
+
+/* ─── Image Upload Zone ───────────────────────────────────── */
+.img-upload-zone {
+  border: 2px dashed #d0d0d0;
+  border-radius: 16px;
+  background: #fafafa;
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.25s, background 0.25s;
+  position: relative;
+  margin-bottom: 24px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.img-upload-zone.drag-over {
+  border-color: #ff385c;
+  background: #fff5f7;
+}
+
+.img-upload-zone.has-image {
+  border-style: solid;
+  border-color: #e0e0e0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.img-upload-zone input[type="file"] {
+  display: none;
+}
+
+/* Upload Icon */
+.upload-icon {
+  width: 56px;
+  height: 56px;
+  background: #fff0f3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.upload-icon svg {
+  color: #ff385c;
+}
+
+.upload-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+}
+
+.upload-sub {
+  font-size: 13px;
+  color: #888888;
+  margin: 0;
+}
+
+.upload-browse {
+  color: #ff385c;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Preview image */
+.img-preview-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+}
+
+.img-preview-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.img-preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.img-preview-wrap:hover .img-preview-overlay {
+  opacity: 1;
+}
+
+.img-preview-overlay span {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.img-preview-overlay svg {
+  color: #fff;
+}
+
+.img-remove-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.img-remove-btn:hover {
+  background: #ff385c;
+}
+
+.img-remove-btn svg {
+  color: #fff;
+}
+
+/* URL fallback row */
+.img-url-fallback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.img-url-fallback .divider-text {
+  font-size: 13px;
+  color: #999;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.img-url-fallback input {
+  flex: 1;
+}
+
+/* ─── Form Fields ─────────────────────────────────────────── */
+.form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555555;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: #222222;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  border-color: #ff385c;
+  box-shadow: 0 0 0 3px rgba(255, 56, 92, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* Two-column row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 520px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  .form-card {
+    padding: 28px 20px;
+  }
+}
+
+/* ─── Submit Button ───────────────────────────────────────── */
+.form-submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: #ff385c;
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.2s, transform 0.15s;
+  letter-spacing: 0.2px;
+}
+
+.form-submit-btn:hover {
+  background: #e0314f;
+  transform: translateY(-1px);
+}
+
+.form-submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}

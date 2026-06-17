@@ -1,0 +1,43 @@
+<% layout("layouts/boilerplate") %>
+
+<h3>All Listings</h3>
+
+<div class="row">
+  <% alllistings.forEach(listing => { %> 
+
+    <div class="col-md-4 mb-4">
+
+      <a href="/listings/<%= listing._id %>" class="listing-link">
+
+        <div class="card listing-card">
+
+          <img 
+            src="<%= listing.image && listing.image.url ? listing.image.url : 'https://via.placeholder.com/300' %>" 
+            class="listing-img" 
+            alt="listing image"
+          />
+
+          <div class="card-body">
+
+            <h5 class="card-title">
+              <%= listing.title %>
+            </h5>
+
+            <p class="card-text">
+              <% if(listing.price) { %>
+                ₹<%= listing.price.toLocaleString("en-IN") %> / night
+              <% } else { %>
+                Price not available
+              <% } %>
+            </p>
+
+          </div>
+
+        </div>
+
+      </a>
+
+    </div>
+
+  <% }) %>
+</div>

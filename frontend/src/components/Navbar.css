@@ -1,0 +1,232 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+/* ─── Navbar shell ───────────────────────────────────────── */
+.custom-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #ebebeb;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+/* ─── Container ──────────────────────────────────────────── */
+.navbar-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 70px;
+  gap: 16px;
+}
+
+/* ─── Brand: Logo + "Explore" ────────────────────────────── */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  flex-shrink: 0;
+  min-width: 130px;
+}
+
+.navbar-brand:hover .brand-text {
+  color: #FF385C;
+}
+
+.brand-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #222222;
+  letter-spacing: -0.3px;
+  transition: color 0.2s;
+}
+
+/* ─── Center Search Bar ──────────────────────────────────── */
+.navbar-search {
+  flex: 1;
+  max-width: 430px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #dddddd;
+  border-radius: 40px;
+  background: #ffffff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.navbar-search:focus-within {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 13px 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: #222222;
+  background: transparent;
+  min-width: 0;
+}
+
+.search-input::placeholder {
+  color: #aaaaaa;
+}
+
+.search-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px 9px 13px;
+  margin: 5px 5px 5px 0;
+  background: #FF385C;
+  color: #ffffff;
+  border: none;
+  border-radius: 30px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.search-btn:hover {
+  background: #e0314f;
+}
+
+/* ─── Right: Auth ────────────────────────────────────────── */
+.navbar-auth {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 130px;
+  justify-content: flex-end;
+}
+
+/* "Add your listing" */
+.nav-host-link {
+  text-decoration: none;
+  color: #222222;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 22px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.nav-host-link:hover {
+  background: #f7f7f7;
+}
+
+/* Sign up */
+.nav-signup {
+  text-decoration: none;
+  color: #222222;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 12px;
+  border-radius: 22px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.nav-signup:hover {
+  background: #f7f7f7;
+}
+
+/* Log in */
+.nav-login {
+  text-decoration: none;
+  color: #222222;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 12px;
+  border-radius: 22px;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.nav-login:hover {
+  background: #f7f7f7;
+}
+
+/* Welcome email */
+.nav-user {
+  color: #555555;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 6px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Logout — plain text, no border (matches reference) */
+.nav-logout {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #222222;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 22px;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.nav-logout:hover {
+  background: #f7f7f7;
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .navbar-container {
+    padding: 0 20px;
+    gap: 16px;
+  }
+  .nav-host-link {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .navbar-container {
+    padding: 0 16px;
+    height: 64px;
+    gap: 10px;
+  }
+  .brand-text {
+    display: none;
+  }
+  .navbar-search {
+    max-width: 100%;
+  }
+  .nav-signup,
+  .nav-user {
+    display: none;
+  }
+}

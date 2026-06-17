@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #222222;
+  background-color: #ffffff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background-color: #ffffff;
+  color: #222222;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: left;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  color: #222222;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

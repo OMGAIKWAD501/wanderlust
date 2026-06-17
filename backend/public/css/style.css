@@ -1,0 +1,103 @@
+body{
+    font-family:"Plus jakarta sans",sans-serif !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+}
+
+.container{
+    flex: 1;
+}
+
+/* Navbar */
+.navbar {
+    min-height: 5rem;   /* better than fixed height */
+    background-color: white;
+}
+
+/* Compass Icon */
+.fa-compass {
+    color: #fe424d;
+    font-size: 2rem;
+}
+
+/* Navbar Links */
+.nav-link {
+    color: #222222 !important;
+    font-weight: 500;
+}
+
+/* Hover Effect (optional but nice) */
+.nav-link:hover {
+    color: #fe424d !important;
+}
+
+.footer {
+    background-color: #f8f9fa;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+    border-top: 1px solid #ddd;
+}
+
+.f-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* Social icons */
+.f-info-socials i {
+    font-size: 1.4rem;
+    margin: 0 10px;
+    color: #222;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.f-info-socials i:hover {
+    color: #fe424d;
+    transform: scale(1.2);
+}
+
+/* Brand text */
+.f-info-brand {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+/* Links */
+.f-info-links a {
+    text-decoration: none;
+    margin: 0 10px;
+    color: #222;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.f-info-links a:hover {
+    color: #fe424d;
+}
+
+.listing-img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.listing-card {
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+.listing-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+.listing-link{
+    text-decoration: none;
+}
+
+/* card effect */
