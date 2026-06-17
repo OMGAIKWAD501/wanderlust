@@ -216,13 +216,17 @@
 /* ─── Image ──────────────────────────────────────────────── */
 .listing-img-wrapper {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  position: relative;
+  padding-top: 75%; /* 4:3 aspect ratio */
   overflow: hidden;
   background: #f0f0f0;
   border-radius: 14px;
 }
 
 .listing-img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
