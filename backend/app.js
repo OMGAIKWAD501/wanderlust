@@ -46,9 +46,17 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ================= CORS CONFIGURATION ================= //
-const frontendOrigin = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, '') : "http://localhost:5173";
+let frontendOrigins = ["http://localhost:5173"];
+if (process.env.FRONTEND_URL) {
+  // Handle multiple URLs separated by commas, spaces, or ||
+  frontendOrigins = process.env.FRONTEND_URL
+    .split(/\|\||,/)
+    .map(url => url.trim().replace(/\/$/, ''))
+    .filter(url => url.length > 0);
+}
+
 app.use(cors({
-    origin: [frontendOrigin, "http://localhost:5173"],
+    origin: [...frontendOrigins, "http://localhost:5173"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
