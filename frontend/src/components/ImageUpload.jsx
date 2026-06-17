@@ -15,12 +15,14 @@ function ImageUpload({ value, onChange, existingUrl }) {
   /* The preview to show: a newly picked file OR the existing saved URL */
   const previewSrc = value || existingUrl || null;
 
-  /* ── helpers ────────────────────────────────────────────── */
   const processFile = (file) => {
     if (!file || !file.type.startsWith("image/")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => onChange(e.target.result); // base64 data URL
-    reader.readAsDataURL(file);
+    
+    // Create a local object URL for instant preview without reading full Base64
+    const objectUrl = URL.createObjectURL(file);
+    
+    // Pass the actual File object back up to the parent
+    onChange(file, objectUrl);
   };
 
   /* ── drag-and-drop handlers ─────────────────────────────── */

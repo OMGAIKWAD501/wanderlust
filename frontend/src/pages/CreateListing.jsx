@@ -17,13 +17,23 @@ function CreateListing() {
     category: "trending",
   });
 
-  /* Holds data URL (base64) from drag-and-drop / file picker,
-     or a typed URL string from the fallback input */
-  const [imageValue, setImageValue] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setListing({ ...listing, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (fileOrString, objectUrl) => {
+    if (fileOrString instanceof File) {
+      setImageFile(fileOrString);
+      setImagePreview(objectUrl);
+    } else {
+      // Fallback for direct URL input
+      setImageFile(null);
+      setImagePreview(fileOrString);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -38,17 +48,29 @@ function CreateListing() {
 
     setLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("title", listing.title);
+      formData.append("description", listing.description);
+      formData.append("price", listing.price);
+      formData.append("location", listing.location);
+      formData.append("country", listing.country);
+      formData.append("category", listing.category);
+      
+      if (imageFile) {
+        formData.append("image", imageFile);
+      } else if (imagePreview) {
+        // If it's a direct URL string, we just append it as text.
+        // On the backend we'd need to handle this manually, but for now Cloudinary mostly needs actual files.
+        // We'll just let the backend fallback to default if no file.
+      }
+
       await axios.post(
         `${import.meta.env.VITE_API_URL || "http://localhost:8080"}/listings`, 
-        {
-          listing: {
-            ...listing,
-            image: {
-              url: imageValue || "https://images.unsplash.com/photo-1530789253388-582c481c54b0",
-            },
-          },
-        },
-        { withCredentials: true }
+        formData,
+        { 
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true 
+        }
       );
       navigate("/");
     } catch (err) {
@@ -109,10 +131,13 @@ function CreateListing() {
         <h1>Add New Listing</h1>
 
         <form onSubmit={handleSubmit}>
-          {/* ── Image Upload ─────────────────────────── */}
-          <div className="form-group">
-            <label className="form-label">Property Photo</label>
-            <ImageUpload value={imageValue} onChange={setImageValue} />
+          {/* Image Upload Component */}
+          <div className="form-group full-width">
+            <label className="form-label">Upload Image</label>
+            <ImageUpload 
+              value={imagePreview} 
+              onChange={handleImageChange} 
+            />
 
             {/* Optional: also accept a URL directly */}
             <div className="img-url-fallback">
@@ -121,8 +146,8 @@ function CreateListing() {
                 type="url"
                 className="form-input"
                 placeholder="https://example.com/photo.jpg"
-                value={imageValue.startsWith("data:") ? "" : imageValue}
-                onChange={(e) => setImageValue(e.target.value)}
+                value={imagePreview && !imagePreview.startsWith("blob:") ? imagePreview : ""}
+                onChange={(e) => handleImageChange(e.target.value, e.target.value)}
               />
             </div>
           </div>

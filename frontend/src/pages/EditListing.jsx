@@ -18,10 +18,10 @@ function EditListing() {
     category: "trending",
   });
 
-  /* existingImageUrl – the saved URL from DB (shown as initial preview)
-     newImageValue    – set when user picks / drags a new image or types a URL */
+  /* existingImageUrl – the saved URL from DB (shown as initial preview) */
   const [existingImageUrl, setExistingImageUrl] = useState("");
-  const [newImageValue, setNewImageValue] = useState("");
+  const [newImageFile, setNewImageFile] = useState(null);
+  const [newImagePreview, setNewImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
@@ -53,25 +53,40 @@ function EditListing() {
     setListing({ ...listing, [e.target.name]: e.target.value });
   };
 
-  /* Determine the final image URL to submit:
-     - If user picked/dragged a new image → use newImageValue (data URL or typed URL)
-     - Otherwise keep the existing saved URL */
-  const finalImageUrl =
-    newImageValue || existingImageUrl ||
-    "https://images.unsplash.com/photo-1530789253388-582c481c54b0";
+  const handleImageChange = (fileOrString, objectUrl) => {
+    if (fileOrString instanceof File) {
+      setNewImageFile(fileOrString);
+      setNewImagePreview(objectUrl);
+    } else {
+      setNewImageFile(null);
+      setNewImagePreview(fileOrString);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/listings/${id}`, {
-        listing: {
-          ...listing,
-          image: {
-            url: finalImageUrl,
-          },
-        },
-      }, { withCredentials: true });
+      const formData = new FormData();
+      formData.append("title", listing.title);
+      formData.append("description", listing.description);
+      formData.append("price", listing.price);
+      formData.append("location", listing.location);
+      formData.append("country", listing.country);
+      formData.append("category", listing.category);
+      
+      if (newImageFile) {
+        formData.append("image", newImageFile);
+      }
+
+      await axios.put(
+        `${import.meta.env.VITE_API_URL || "http://localhost:8080"}/listings/${id}`, 
+        formData, 
+        { 
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true 
+        }
+      );
       navigate(`/listings/${id}`);
     } catch (err) {
       console.error(err);
@@ -143,29 +158,24 @@ function EditListing() {
         <h1>Edit Listing</h1>
 
         <form onSubmit={handleSubmit}>
-          {/* ── Image Upload ─────────────────────────── */}
-          <div className="form-group">
-            <label className="form-label">Property Photo</label>
-
-            {/* Pass existingUrl so the current saved image shows as preview.
-                When the user picks a new file, newImageValue overrides it. */}
-            <ImageUpload
-              value={newImageValue}
-              onChange={setNewImageValue}
-              existingUrl={newImageValue ? "" : existingImageUrl}
+          {/* Image Upload Component */}
+          <div className="form-group full-width">
+            <label className="form-label">Update Property Photo</label>
+            <ImageUpload 
+              value={newImagePreview} 
+              onChange={handleImageChange}
+              existingUrl={existingImageUrl}
             />
 
-            {/* Optional: paste a URL */}
+            {/* Optional fallback input for typing a URL directly */}
             <div className="img-url-fallback">
               <span className="divider-text">or paste an image URL</span>
               <input
                 type="url"
                 className="form-input"
                 placeholder="https://example.com/photo.jpg"
-                value={
-                  newImageValue.startsWith("data:") ? "" : newImageValue
-                }
-                onChange={(e) => setNewImageValue(e.target.value)}
+                value={newImagePreview && !newImagePreview.startsWith("blob:") ? newImagePreview : ""}
+                onChange={(e) => handleImageChange(e.target.value, e.target.value)}
               />
             </div>
           </div>

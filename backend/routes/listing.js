@@ -6,6 +6,10 @@ const ExpressError = require("../utils/ExpressError.js");
 const { listingSchema } = require("../schema.js");
 const { validateListing, isLoggedIn } = require("../middleware.js");
 
+const multer = require('multer');
+const { storage } = require('../cloudConfig.js');
+const upload = multer({ storage });
+
 
 // INDEX ROUTE
 router.get(
@@ -72,8 +76,23 @@ router.get(
 router.post(
   "/",
   isLoggedIn,
-  validateListing,
+  upload.single("image"),
   wrapAsync(async (req, res) => {
+    // If sent via FormData as flat fields, reconstruct req.body.listing
+    if (!req.body.listing) {
+      req.body.listing = {
+        title: req.body.title,
+        description: req.body.description,
+        location: req.body.location,
+        country: req.body.country,
+        price: req.body.price,
+        category: req.body.category
+      };
+    }
+
+    if (req.file) {
+      req.body.listing.image = { url: req.file.path, filename: req.file.filename };
+    }
 
     let result = listingSchema.validate(req.body);
 
@@ -98,8 +117,8 @@ router.post(
 router.put(
   "/:id",
   isLoggedIn,
+  upload.single("image"),
   wrapAsync(async (req, res) => {
-
     let { id } = req.params;
 
     const listing = await Listing.findById(id);
@@ -110,6 +129,21 @@ router.put(
     // Owner check
     if (listing.owner && !listing.owner.equals(req.user._id)) {
       return res.status(403).json({ error: "You don't have permission to edit this listing" });
+    }
+
+    if (!req.body.listing) {
+      req.body.listing = {
+        title: req.body.title,
+        description: req.body.description,
+        location: req.body.location,
+        country: req.body.country,
+        price: req.body.price,
+        category: req.body.category
+      };
+    }
+
+    if (req.file) {
+      req.body.listing.image = { url: req.file.path, filename: req.file.filename };
     }
 
     const updatedListing = await Listing.findByIdAndUpdate(
@@ -124,7 +158,6 @@ router.put(
     });
   })
 );
-
 
 // DELETE ROUTE — must be logged in + must be owner
 router.delete(
