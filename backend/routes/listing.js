@@ -88,6 +88,13 @@ router.post(
         price: req.body.price,
         category: req.body.category
       };
+      delete req.body.title;
+      delete req.body.description;
+      delete req.body.location;
+      delete req.body.country;
+      delete req.body.price;
+      delete req.body.category;
+      delete req.body.imageUrl;
     }
 
     if (req.file) {
@@ -99,7 +106,8 @@ router.post(
     let result = listingSchema.validate(req.body);
 
     if (result.error) {
-      throw new ExpressError(400, result.error);
+      let errMsg = result.error.details.map((el) => el.message).join(",");
+      throw new ExpressError(400, errMsg);
     }
 
     const newListing = new Listing(req.body.listing);
@@ -142,12 +150,25 @@ router.put(
         price: req.body.price,
         category: req.body.category
       };
+      delete req.body.title;
+      delete req.body.description;
+      delete req.body.location;
+      delete req.body.country;
+      delete req.body.price;
+      delete req.body.category;
+      delete req.body.imageUrl;
     }
 
     if (req.file) {
       req.body.listing.image = { url: req.file.path, filename: req.file.filename };
     } else if (req.body.imageUrl) {
       req.body.listing.image = { url: req.body.imageUrl, filename: "default" };
+    }
+
+    let result = listingSchema.validate(req.body);
+    if (result.error) {
+      let errMsg = result.error.details.map((el) => el.message).join(",");
+      throw new ExpressError(400, errMsg);
     }
 
     const updatedListing = await Listing.findByIdAndUpdate(
