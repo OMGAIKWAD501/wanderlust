@@ -296,4 +296,11 @@
   .navbar-search {
     max-width: 100%;
   }
+  .search-btn-text {
+    display: none;
+  }
+  .search-btn {
+    padding: 10px;
+    border-radius: 50%;
+  }
 }

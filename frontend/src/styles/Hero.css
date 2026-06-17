@@ -198,20 +198,15 @@
     font-size: 15px;
     margin-bottom: 24px;
   }
-  .hero-search-bar {
-    flex-direction: column;
-    border-radius: 20px;
-  }
   .hero-search-icon {
     display: none;
   }
   .hero-search-input {
-    width: 100%;
-    padding: 16px;
-    text-align: center;
+    padding: 14px 16px;
+    font-size: 14px;
   }
   .hero-search-btn {
-    width: calc(100% - 12px);
-    margin: 0 6px 6px;
+    padding: 10px 20px;
+    margin: 4px;
   }
 }
