@@ -97,6 +97,10 @@
     grid-template-columns: 1.5fr 1fr;
     align-items: start;
   }
+  .show-sidebar {
+    position: sticky;
+    top: 90px;
+  }
 }
 
 .show-main-column {
@@ -105,8 +109,7 @@
 }
 
 .show-sidebar {
-  position: sticky;
-  top: 90px;
+  position: relative;
 }
 /* ── Header Row (title + actions) ────────────────────────── */
 .show-header {

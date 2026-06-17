@@ -186,3 +186,32 @@
     display: none;
   }
 }
+
+@media (max-width: 480px) {
+  .hero-content {
+    padding: 40px 16px 60px;
+  }
+  .hero-title {
+    font-size: clamp(32px, 8vw, 42px);
+  }
+  .hero-subtitle {
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+  .hero-search-bar {
+    flex-direction: column;
+    border-radius: 20px;
+  }
+  .hero-search-icon {
+    display: none;
+  }
+  .hero-search-input {
+    width: 100%;
+    padding: 16px;
+    text-align: center;
+  }
+  .hero-search-btn {
+    width: calc(100% - 12px);
+    margin: 0 6px 6px;
+  }
+}

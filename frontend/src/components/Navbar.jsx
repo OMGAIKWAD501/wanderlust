@@ -5,6 +5,7 @@ import "./Navbar.css";
 function Navbar() {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -15,10 +16,16 @@ function Navbar() {
     }
   }, []);
 
+  // Close menu when location changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
+    setIsMenuOpen(false);
     window.location.href = "/";
   };
 
@@ -64,8 +71,8 @@ function Navbar() {
           </button>
         </form>
 
-        {/* ── Right: Auth ───────────────────────────────── */}
-        <div className="navbar-auth">
+        {/* ── Right: Auth (Desktop) ─────────────────────── */}
+        <div className="navbar-auth desktop-only">
           {/* "Add your listing" always visible */}
           <Link className="nav-host-link" to="/create">
             Add your listing
@@ -93,7 +100,40 @@ function Navbar() {
           )}
         </div>
 
+        {/* ── Mobile Hamburger Icon ─────────────────────── */}
+        <button 
+          className="mobile-menu-btn" 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
       </div>
+
+      {/* ── Mobile Menu Overlay ─────────────────────────── */}
+      {isMenuOpen && (
+        <div className="mobile-menu-overlay">
+          <div className="mobile-menu-content">
+            <Link className="mobile-nav-link" to="/create">Add your listing</Link>
+            {user ? (
+              <>
+                <Link className="mobile-nav-link" to="/trips">My Trips</Link>
+                <button className="mobile-nav-link logout-btn" onClick={handleLogout}>Logout</button>
+              </>
+            ) : (
+              <>
+                <Link className="mobile-nav-link" to={`/register?redirect=${encodeURIComponent(location.pathname + location.search)}`}>Sign up</Link>
+                <Link className="mobile-nav-link" to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`}>Log in</Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
