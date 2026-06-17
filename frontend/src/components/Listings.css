@@ -215,9 +215,9 @@
 
 /* ─── Image ──────────────────────────────────────────────── */
 .listing-img-wrapper {
-  width: 100%;
   position: relative;
-  padding-top: 75%; /* 4:3 aspect ratio */
+  width: 100%;
+  padding-top: 95%; /* near 1:1 aspect ratio, slightly wider */
   overflow: hidden;
   background: #f0f0f0;
   border-radius: 14px;
