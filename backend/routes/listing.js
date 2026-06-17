@@ -88,13 +88,6 @@ router.post(
         price: req.body.price,
         category: req.body.category
       };
-      delete req.body.title;
-      delete req.body.description;
-      delete req.body.location;
-      delete req.body.country;
-      delete req.body.price;
-      delete req.body.category;
-      delete req.body.imageUrl;
     }
 
     if (req.file) {
@@ -102,6 +95,14 @@ router.post(
     } else if (req.body.imageUrl) {
       req.body.listing.image = { url: req.body.imageUrl, filename: "default" };
     }
+
+    delete req.body.title;
+    delete req.body.description;
+    delete req.body.location;
+    delete req.body.country;
+    delete req.body.price;
+    delete req.body.category;
+    delete req.body.imageUrl;
 
     let result = listingSchema.validate(req.body);
 
@@ -150,13 +151,6 @@ router.put(
         price: req.body.price,
         category: req.body.category
       };
-      delete req.body.title;
-      delete req.body.description;
-      delete req.body.location;
-      delete req.body.country;
-      delete req.body.price;
-      delete req.body.category;
-      delete req.body.imageUrl;
     }
 
     if (req.file) {
@@ -164,6 +158,14 @@ router.put(
     } else if (req.body.imageUrl) {
       req.body.listing.image = { url: req.body.imageUrl, filename: "default" };
     }
+
+    delete req.body.title;
+    delete req.body.description;
+    delete req.body.location;
+    delete req.body.country;
+    delete req.body.price;
+    delete req.body.category;
+    delete req.body.imageUrl;
 
     let result = listingSchema.validate(req.body);
     if (result.error) {
