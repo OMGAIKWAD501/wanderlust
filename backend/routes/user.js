@@ -2,8 +2,15 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user.js");
 const passport = require("passport");
-const wrapAsync = require("../utils/wrapAsync.js");
-const ExpressError = require("../utils/ExpressError.js");
+const jwt = require("jsonwebtoken");
+
+const generateToken = (user) => {
+    return jwt.sign(
+        { _id: user._id, username: user.username, email: user.email },
+        process.env.JWT_SECRET || "fallback_secret",
+        { expiresIn: "7d" }
+    );
+};
 
 // Register route
 router.post("/register", async (req, res) => {
@@ -17,15 +24,12 @@ router.post("/register", async (req, res) => {
         const newUser = new User({ email, username });
         const registeredUser = await User.register(newUser, password);
         
-        req.logIn(registeredUser, (err) => {
-            if (err) {
-                console.error("Login error after registration:", err);
-                return res.status(500).json({ error: "Registration successful but login failed" });
-            }
-            res.status(201).json({
-                message: "User registered successfully",
-                user: registeredUser,
-            });
+        const token = generateToken(registeredUser);
+        
+        res.status(201).json({
+            message: "User registered successfully",
+            token,
+            user: { _id: registeredUser._id, username: registeredUser.username, email: registeredUser.email },
         });
     } catch (err) {
         console.error("Registration error:", err);
@@ -35,21 +39,20 @@ router.post("/register", async (req, res) => {
 
 // Custom passport authentication middleware for JSON responses
 function authenticateLocal(req, res, next) {
-    passport.authenticate("local", (err, user, info) => {
+    passport.authenticate("local", { session: false }, (err, user, info) => {
         if (err) {
             return res.status(500).json({ error: err.message });
         }
         if (!user) {
             return res.status(401).json({ error: info.message || "Authentication failed" });
         }
-        req.logIn(user, (err) => {
-            if (err) {
-                return res.status(500).json({ error: err.message });
-            }
-            return res.json({
-                message: "Logged in successfully",
-                user: user,
-            });
+        
+        const token = generateToken(user);
+        
+        return res.json({
+            message: "Logged in successfully",
+            token,
+            user: { _id: user._id, username: user.username, email: user.email },
         });
     })(req, res, next);
 }
@@ -57,19 +60,22 @@ function authenticateLocal(req, res, next) {
 // Login route
 router.post("/login", authenticateLocal);
 
-// Logout route
-router.post("/logout", (req, res, next) => {
-    req.logout((err) => {
-        if (err) return next(err);
-        res.json({ message: "Logged out successfully" });
-    });
+// Logout route (client-side deletes token)
+router.post("/logout", (req, res) => {
+    res.json({ message: "Logged out successfully" });
 });
 
-// Get current user
+// Get current user (expects Bearer token in header, checked via isLoggedIn middleware if we wanted, but let's just decode it)
 router.get("/current-user", (req, res) => {
-    if (req.isAuthenticated()) {
-        res.json(req.user);
-    } else {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.json(null);
+    }
+    const token = authHeader.split(" ")[1];
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || "fallback_secret");
+        res.json(decoded);
+    } catch (err) {
         res.json(null);
     }
 });

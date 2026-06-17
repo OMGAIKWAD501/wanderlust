@@ -74,8 +74,11 @@ function RegisterPage() {
 
       console.log("Registration successful:", data);
       
-      // Store user info
+      // Store user info and token
       localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
       
       // Clear saved form data on successful registration
       localStorage.removeItem("registerUsername");

@@ -40,21 +40,16 @@ function LoginPage() {
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
-    if (rememberMe) {
-      localStorage.setItem("savedPassword", value);
-    }
   };
 
   const handleRememberMeChange = (e) => {
     const isChecked = e.target.checked;
     setRememberMe(isChecked);
-
+    
     if (isChecked) {
       localStorage.setItem("rememberMe", "true");
-      localStorage.setItem("savedPassword", password);
     } else {
       localStorage.removeItem("rememberMe");
-      localStorage.removeItem("savedPassword");
     }
   };
 
@@ -83,8 +78,11 @@ function LoginPage() {
 
       console.log("Login successful:", data);
 
-      // Store user info
+      // Store user info and token
       localStorage.setItem("user", JSON.stringify(data.user));
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
 
       // Extract redirect URL from query params, or default to "/"
       const params = new URLSearchParams(window.location.search);

@@ -14,8 +14,6 @@ const cors = require("cors");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
-const session = require("express-session");
-const { MongoStore } = require("connect-mongo");
 
 const listings = require("./routes/listing.js");
 const users = require("./routes/user.js");
@@ -58,43 +56,10 @@ app.use(cors({
 
 app.use(express.json({ limit: "10mb" }));
 
-// ================= SESSION CONFIGURATION ================= //
-
-const store = MongoStore.create({
-    mongoUrl: MONGO_URL,
-    touchAfter: 24 * 3600, // lazy session update (in seconds)
-    crypto: {
-        secret: process.env.SESSION_SECRET || "thisshouldbeabettersecret",
-    },
-});
-
-store.on("error", function (e) {
-    console.log("SESSION STORE ERROR", e);
-});
-
-const sessionConfig = {
-    store: store,
-    secret: process.env.SESSION_SECRET || "thisshouldbeabettersecret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 7 days
-        maxAge: 1000 * 60 * 60 * 24 * 7,
-        httpOnly: true,
-        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-        secure: process.env.NODE_ENV === "production", // Set to true in production with HTTPS
-    },
-};
-
-app.use(session(sessionConfig));
-
 // ================= PASSPORT CONFIGURATION ================= //
 app.use(passport.initialize());
-app.use(passport.session());
 
 passport.use(new LocalStrategy(User.authenticate()));
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
 
 // Root
 app.get("/", (req, res) => {
