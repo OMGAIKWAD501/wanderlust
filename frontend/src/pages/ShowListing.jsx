@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { useToast } from "../context/ToastContext";
 import "../styles/ShowListing.css";
 
 /* ── Star selector (for writing reviews) ─────────────────── */
@@ -49,6 +50,7 @@ function ShowListing() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
 
   const [listing, setListing] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -103,11 +105,11 @@ function ShowListing() {
         },
         { withCredentials: true }
       );
-      alert("Booking confirmed! Redirecting to your trips...");
-      navigate("/trips");
+      toast.success("Booking confirmed! Redirecting to your trips...");
+      setTimeout(() => navigate("/trips"), 1500);
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.error || "Failed to complete booking. Please try again.");
+      toast.error(err.response?.data?.error || "Failed to complete booking. Please try again.");
     } finally {
       setBookingLoading(false);
     }
@@ -131,20 +133,32 @@ function ShowListing() {
     }
   };
 
+  const [showShareModal, setShowShareModal] = useState(false);
+
   const handleDelete = async () => {
     setDeleting(true);
     try {
       await axios.delete(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/listings/${id}`, {
         withCredentials: true,
       });
+      toast.success("Listing deleted successfully");
       navigate("/");
     } catch (err) {
       console.error(err);
-      alert(err.response?.data?.error || "Failed to delete listing");
+      toast.error(err.response?.data?.error || "Failed to delete listing");
       setDeleting(false);
       setShowDeleteModal(false);
     }
   };
+
+  /* ── Share helpers ─────────────────────────────── */
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("Link copied to clipboard!");
+  };
+
+  const shareUrl = encodeURIComponent(window.location.href);
+  const shareText = encodeURIComponent(`Check out this amazing place: ${listing?.title}`);
 
   /* ── Submit review ─────────────────────────────── */
   const handleReviewSubmit = async (e) => {
@@ -245,7 +259,7 @@ function ShowListing() {
 
         {/* ── Image ────────────────────────────────── */}
         <img
-          src={listing.image?.url}
+          src={listing.image?.url?.replace("/upload/", "/upload/q_auto,f_auto,w_1200/")}
           className="show-hero-img"
           alt={listing.title}
         />
@@ -267,34 +281,57 @@ function ShowListing() {
             )}
           </div>
 
-          {/* Only show Edit/Delete to the listing owner */}
-          {isOwner && (
-            <div className="show-actions">
-              <Link to={`/edit/${listing._id}`} className="show-edit-btn">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                </svg>
-                Edit
-              </Link>
-              <button className="show-delete-btn" onClick={() => setShowDeleteModal(true)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                </svg>
-                Delete
-              </button>
-            </div>
-          )}
+          <div className="show-actions">
+            <button className="show-share-btn" onClick={() => setShowShareModal(true)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              Share
+            </button>
+            
+            {/* Only show Edit/Delete to the listing owner */}
+            {isOwner && (
+              <>
+                <Link to={`/edit/${listing._id}`} className="show-edit-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Edit
+                </Link>
+                <button className="show-delete-btn" onClick={() => setShowDeleteModal(true)}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                  Delete
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="show-layout">
           <div className="show-main-column">
             {/* ── Owner info ───────────────────────────── */}
             {listing.owner && (
-              <p className="show-hosted-by">
-                Hosted by <strong>{listing.owner.username || listing.owner.email}</strong>
-              </p>
+              <Link to={`/users/${listing.owner._id}`} className="show-hosted-by-link">
+                <div className="show-hosted-by">
+                  {listing.owner.avatar?.url ? (
+                    <img src={listing.owner.avatar.url.replace("/upload/", "/upload/w_48,h_48,c_fill/")} alt="" className="host-avatar" />
+                  ) : (
+                    <div className="host-avatar-placeholder">{listing.owner.username?.charAt(0).toUpperCase()}</div>
+                  )}
+                  <div>
+                    <span style={{color: "#717171", fontSize: "14px"}}>Hosted by</span>
+                    <strong style={{display: "block", color: "#222"}}>{listing.owner.username || listing.owner.email}</strong>
+                  </div>
+                </div>
+              </Link>
             )}
 
             {/* ── Location ─────────────────────────────── */}
@@ -538,6 +575,52 @@ function ShowListing() {
               <button className="delete-modal-confirm" onClick={handleDelete} disabled={deleting}>
                 {deleting ? "Deleting…" : "Delete"}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Share Modal ─────────────────────────────── */}
+      {showShareModal && (
+        <div className="share-modal-overlay" onClick={() => setShowShareModal(false)}>
+          <div className="share-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="share-modal-header">
+              <h3>Share this place</h3>
+              <button className="share-modal-close" onClick={() => setShowShareModal(false)}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div className="share-modal-content">
+              <button className="share-option-btn" onClick={handleCopyLink}>
+                <div className="share-option-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                  </svg>
+                </div>
+                <span>Copy Link</span>
+              </button>
+              
+              <a href={`https://wa.me/?text=${shareText}%20${shareUrl}`} target="_blank" rel="noopener noreferrer" className="share-option-btn" onClick={() => setShowShareModal(false)}>
+                <div className="share-option-icon whatsapp-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                  </svg>
+                </div>
+                <span>WhatsApp</span>
+              </a>
+
+              <a href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`} target="_blank" rel="noopener noreferrer" className="share-option-btn" onClick={() => setShowShareModal(false)}>
+                <div className="share-option-icon twitter-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                  </svg>
+                </div>
+                <span>Twitter</span>
+              </a>
             </div>
           </div>
         </div>

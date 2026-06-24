@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 import ImageUpload from "../components/ImageUpload";
 import "../styles/ListingForm.css";
 
 function CreateListing() {
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
 
   const [listing, setListing] = useState({
     title: "",
@@ -41,7 +43,7 @@ function CreateListing() {
     
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
-      alert("You must be logged in to create a listing.");
+      toast.error("You must be logged in to create a listing.");
       navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
       return;
     }
@@ -74,11 +76,11 @@ function CreateListing() {
     } catch (err) {
       console.error(err);
       if (err.response?.status === 401) {
-        alert("Session expired. Please log in again.");
+        toast.error("Session expired. Please log in again.");
         navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
       } else {
         const errMsg = err.response?.data?.error || err.response?.data?.message || err.message || "Unknown error";
-        alert(`Failed to add listing: ${errMsg}`);
+        toast.error(`Failed to add listing: ${errMsg}`);
       }
     } finally {
       setLoading(false);
@@ -89,7 +91,7 @@ function CreateListing() {
 
   const generateDescription = async () => {
     if (!listing.title) {
-      alert("Please enter a title first to generate a description.");
+      toast.error("Please enter a title first to generate a description.");
       return;
     }
     setGeneratingAI(true);
@@ -103,7 +105,7 @@ function CreateListing() {
       setListing((prev) => ({ ...prev, description: res.data.description }));
     } catch (err) {
       console.error(err);
-      alert("Failed to generate description. Please try again.");
+      toast.error("Failed to generate description. Please try again.");
     } finally {
       setGeneratingAI(false);
     }

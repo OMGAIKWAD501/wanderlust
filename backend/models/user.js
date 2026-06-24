@@ -9,6 +9,14 @@ const userSchema = new Schema({
         required: true,
         unique: true,
     },
+    avatar: {
+        url: String,
+        filename: String,
+    },
+    bio: {
+        type: String,
+        default: "",
+    },
     createdAt: {
         type: Date,
         default: Date.now,

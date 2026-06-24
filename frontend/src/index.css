@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 :root {
   font-family: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
   font-size: 16px;
@@ -20,6 +24,7 @@ body {
   margin: 0;
   background-color: #ffffff;
   color: #222222;
+  overflow-x: hidden;
 }
 
 #root {

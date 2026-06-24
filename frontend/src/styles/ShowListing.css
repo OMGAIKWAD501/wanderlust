@@ -146,6 +146,7 @@
   flex-shrink: 0;
 }
 
+.show-share-btn,
 .show-edit-btn,
 .show-delete-btn {
   display: flex;
@@ -161,6 +162,17 @@
   transition: background 0.2s, transform 0.15s;
   border: none;
   white-space: nowrap;
+}
+
+.show-share-btn {
+  background: #ffffff;
+  color: #222222;
+  border: 1px solid #ebebeb;
+}
+
+.show-share-btn:hover {
+  background: #f7f7f7;
+  transform: translateY(-1px);
 }
 
 .show-edit-btn {
@@ -185,6 +197,49 @@
   color: #ffffff;
   border-color: #FF385C;
   transform: translateY(-1px);
+}
+
+/* ── Hosted By ───────────────────────────────────────────── */
+.show-hosted-by-link {
+  text-decoration: none;
+  display: block;
+  margin-bottom: 24px;
+}
+
+.show-hosted-by {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #ebebeb;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.show-hosted-by:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
+
+.host-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.host-avatar-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #FF385C;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 /* ── Location ────────────────────────────────────────────── */
@@ -333,6 +388,115 @@
   color: #ffffff;
 }
 .delete-modal-confirm:hover { background: #e0314f; }
+
+/* ── Share Modal ─────────────────────────────────────────── */
+.share-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.share-modal {
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.share-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.share-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #222222;
+}
+
+.share-modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #222222;
+  transition: background 0.2s;
+}
+
+.share-modal-close:hover {
+  background: #f5f5f5;
+}
+
+.share-modal-content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.share-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222222;
+  cursor: pointer;
+  text-decoration: none;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.share-option-btn:hover {
+  border-color: #222222;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.share-option-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #222222;
+}
+
+.whatsapp-icon {
+  background: #E8F9EE;
+  color: #25D366;
+}
+
+.twitter-icon {
+  background: #E8F5FE;
+  color: #1DA1F2;
+}
 
 /* ── Rating Badge ────────────────────────────────────────── */
 .show-rating-badge {

@@ -22,29 +22,7 @@ const CATEGORIES = [
   { id: "mansions", label: "Mansions", icon: (<svg viewBox="0 0 32 32" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polygon points="16 2 2 12 2 28 30 28 30 12"/><rect x="12" y="18" width="8" height="10"/><rect x="4" y="14" width="6" height="6"/><rect x="22" y="14" width="6" height="6"/></svg>) },
 ];
 
-/* ── Star Rating ────────────────────────────────────────── */
-function StarRating({ rating }) {
-  const stars = [1, 2, 3, 4, 5];
-  return (
-    <div className="star-rating">
-      {stars.map((s) => (
-        <svg
-          key={s}
-          className={`star ${s <= Math.round(rating) ? "filled" : ""}`}
-          viewBox="0 0 24 24"
-          width="13"
-          height="13"
-          fill={s <= Math.round(rating) ? "#FF385C" : "none"}
-          stroke={s <= Math.round(rating) ? "#FF385C" : "#cccccc"}
-          strokeWidth="1.5"
-        >
-          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-      ))}
-      <span className="star-value">{rating?.toFixed(1) ?? "New"}</span>
-    </div>
-  );
-}
+
 
 /* ── Price Filter Sidebar ───────────────────────────────── */
 function FilterSidebar({ maxPrice, priceRange, onChange, onClose }) {
@@ -110,45 +88,74 @@ function Listings() {
   const [showFilter, setShowFilter]       = useState(false);
   const [priceRange, setPriceRange]       = useState([0, 100000]);
   const [appliedPriceRange, setAppliedPriceRange] = useState([0, 100000]);
+  
+  // Pagination state
+  const [page, setPage]                   = useState(1);
+  const [hasMore, setHasMore]             = useState(true);
+  const [loadingMore, setLoadingMore]     = useState(false);
+  
   const location = useLocation();
 
   const searchQuery = new URLSearchParams(location.search).get("search") || "";
 
-  // Instant real-time update for price slider
+  // Debounce price slider (300ms) to avoid hammering the API on every pixel
   useEffect(() => {
-    setAppliedPriceRange(priceRange);
+    const timer = setTimeout(() => {
+      setAppliedPriceRange(priceRange);
+    }, 300);
+    return () => clearTimeout(timer);
   }, [priceRange]);
 
   useEffect(() => { 
-    fetchListings(); 
+    // Reset to page 1 on filter change
+    setPage(1);
+    fetchListings(1); 
   }, [searchQuery, appliedPriceRange, activeCategory]);
 
-  const fetchListings = async () => {
-    setLoading(true);
+  const fetchListings = async (pageNum = page) => {
+    if (pageNum === 1 && listings.length === 0) setLoading(true);
+    if (pageNum > 1) setLoadingMore(true);
+
     try {
       const params = new URLSearchParams();
       if (searchQuery) params.append("search", searchQuery);
       if (appliedPriceRange[0] > 0) params.append("minPrice", appliedPriceRange[0]);
       if (appliedPriceRange[1] < 100000) params.append("maxPrice", appliedPriceRange[1]);
       if (activeCategory) params.append("category", activeCategory);
+      params.append("page", pageNum);
+      params.append("limit", 12);
 
       const res = await axios.get(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/listings?${params.toString()}`);
-      setListings(res.data);
+      
+      const { listings: fetchedListings, totalPages } = res.data;
+      
+      if (pageNum === 1) {
+        setListings(fetchedListings);
+      } else {
+        setListings(prev => [...prev, ...fetchedListings]);
+      }
+      
+      setHasMore(pageNum < totalPages);
     } catch (err) {
       console.log(err);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchListings(nextPage);
     }
   };
 
   const maxPrice = 100000;
 
-  /* Real rating calculation */
-  const getRating = (listingReviews) => {
-    if (!listingReviews || listingReviews.length === 0) return null;
-    const sum = listingReviews.reduce((acc, rev) => acc + rev.rating, 0);
-    return sum / listingReviews.length;
-  };
+  /* Review count display (reviews are no longer populated on index) */
+  const getReviewCount = (listing) => listing.reviewCount || 0;
 
   const displayPrice = (price) => {
     if (!price) return "—";
@@ -249,6 +256,8 @@ function Listings() {
                     <div className="listing-img-wrapper">
                      <img
                         src={listing.image?.url?.replace(
+                          "/upload/",
+                          "/upload/q_auto,f_auto,c_fill,w_800,h_600/"
                         )}
                         className="listing-img"
                         alt={listing.title}
@@ -257,7 +266,13 @@ function Listings() {
                     <div className="listing-info">
                       <div className="listing-info-row">
                         <h5 className="listing-title-text">{listing.title}</h5>
-                        <StarRating rating={getRating(listing.reviews)} />
+                        {getReviewCount(listing) > 0 ? (
+                          <span className="review-count-badge">
+                            ⭐ {getReviewCount(listing)} review{getReviewCount(listing) !== 1 ? "s" : ""}
+                          </span>
+                        ) : (
+                          <span className="review-count-badge new-badge">New</span>
+                        )}
                       </div>
                       <p className="listing-location">{listing.location}{listing.country ? `, ${listing.country}` : ""}</p>
                       <p className="listing-price">
@@ -268,6 +283,18 @@ function Listings() {
                   </div>
                 </Link>
               ))}
+            </div>
+          )}
+
+          {hasMore && listings.length > 0 && (
+            <div className="load-more-container">
+              <button 
+                className="load-more-btn" 
+                onClick={loadMore} 
+                disabled={loadingMore}
+              >
+                {loadingMore ? "Loading..." : "Load more"}
+              </button>
             </div>
           )}
         </div>

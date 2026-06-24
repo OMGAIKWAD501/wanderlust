@@ -1,0 +1,95 @@
+.footer-container {
+  background-color: #f7f7f7;
+  border-top: 1px solid #ebebeb;
+  padding: 24px 32px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  margin-top: auto; /* Pushes footer to bottom if container is flex */
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer-brand {
+  margin: 0;
+  font-size: 14px;
+  color: #222222;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.footer-links li a {
+  text-decoration: none;
+  color: #222222;
+  font-size: 14px;
+}
+
+.footer-links li a:hover {
+  text-decoration: underline;
+}
+
+.footer-links li::before {
+  content: "·";
+  margin-right: 16px;
+  color: #222222;
+}
+
+/* Don't show dot before first link on mobile if it wraps, but usually we hide it via flex gap */
+@media (max-width: 768px) {
+  .footer-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .footer-left {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .footer-links li::before {
+    display: none;
+  }
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.social-icons {
+  display: flex;
+  gap: 16px;
+}
+
+.social-icons a {
+  color: #222222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.social-icons a:hover {
+  color: #FF385C;
+}

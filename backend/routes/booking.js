@@ -75,4 +75,48 @@ router.get("/listing/:id", async (req, res) => {
     }
 });
 
+// Cancel a booking
+router.patch("/:id/cancel", isLoggedIn, async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+        // Ensure user owns the booking
+        if (!booking.user.equals(req.user._id)) {
+            return res.status(403).json({ error: "Unauthorized" });
+        }
+
+        // Optional: Ensure it's not already cancelled or completed
+        if (booking.status === "cancelled") {
+            return res.status(400).json({ error: "Booking is already cancelled" });
+        }
+
+        booking.status = "cancelled";
+        await booking.save();
+        res.json({ message: "Booking cancelled successfully", booking });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to cancel booking." });
+    }
+});
+
+// Delete a booking
+router.delete("/:id", isLoggedIn, async (req, res) => {
+    try {
+        const booking = await Booking.findById(req.params.id);
+        if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+        // Ensure user owns the booking
+        if (!booking.user.equals(req.user._id)) {
+            return res.status(403).json({ error: "Unauthorized" });
+        }
+
+        await Booking.findByIdAndDelete(req.params.id);
+        res.json({ message: "Booking removed successfully" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Failed to remove booking." });
+    }
+});
+
 module.exports = router;

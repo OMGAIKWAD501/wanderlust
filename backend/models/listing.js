@@ -45,5 +45,9 @@ const listeningschema = new Schema({
     },
 });
 
+// ── Indexes for fast filtering ──
+listeningschema.index({ price: 1 });
+listeningschema.index({ category: 1 });
+
 const Listing = mongoose.model("Listing", listeningschema);
 module.exports = Listing;

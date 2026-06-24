@@ -42,6 +42,7 @@
   gap: 0;
   overflow-x: auto;
   flex: 1;
+  min-width: 0;                 /* CRITICAL FIX: allow flex item to shrink below content width */
   scrollbar-width: none;        /* Firefox */
   -ms-overflow-style: none;     /* IE/Edge */
   padding-bottom: 4px;
@@ -192,6 +193,38 @@
   }
 }
 
+/* ─── Load More Button ───────────────────────────────────── */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 48px;
+  width: 100%;
+}
+
+.load-more-btn {
+  background: #222222;
+  color: #ffffff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background: #000000;
+  transform: translateY(-2px);
+}
+
+.load-more-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* ─── Card Link ──────────────────────────────────────────── */
 .listing-card-link {
   text-decoration: none;
@@ -252,6 +285,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
 
 .listing-price {
@@ -361,6 +396,19 @@
   font-weight: 600;
   color: #222222;
   margin-left: 3px;
+}
+
+.review-count-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #222;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.review-count-badge.new-badge {
+  color: #717171;
+  font-weight: 500;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -542,3 +590,10 @@
 }
 
 .filter-apply:hover { background: #111111; }
+
+/* ── Responsive Mobile Fixes ───────────────────────────── */
+@media (max-width: 680px) {
+  .category-bar-outer {
+    top: 64px; /* Align perfectly with 64px mobile navbar height to prevent gaps */
+  }
+}

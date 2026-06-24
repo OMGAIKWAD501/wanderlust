@@ -15,7 +15,7 @@ const upload = multer({ storage });
 router.get(
   "/",
   wrapAsync(async (req, res) => {
-    const { search, minPrice, maxPrice } = req.query;
+    const { search, minPrice, maxPrice, page = 1, limit = 12 } = req.query;
     
     let query = {};
     
@@ -42,8 +42,66 @@ router.get(
       query.category = category;
     }
 
-    const alllistings = await Listing.find(query).populate("reviews");
-    res.status(200).json(alllistings);
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+    const skip = (pageNum - 1) * limitNum;
+
+    const [alllistings, total] = await Promise.all([
+      Listing.find(query)
+        .select("title description image price location country category reviews owner")
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Listing.countDocuments(query)
+    ]);
+
+    // Attach reviewCount for cards without populating full reviews
+    const result = alllistings.map(l => ({
+      ...l,
+      reviewCount: l.reviews?.length || 0,
+    }));
+
+    res.status(200).json({
+      listings: result,
+      total,
+      page: pageNum,
+      totalPages: Math.ceil(total / limitNum)
+    });
+  })
+);
+
+
+// AUTOCOMPLETE ROUTE
+router.get(
+  "/autocomplete",
+  wrapAsync(async (req, res) => {
+    const { q } = req.query;
+    if (!q || q.length < 2) return res.json([]);
+
+    const searchRegex = new RegExp(q, "i");
+    
+    // Find matching listings (limit to a small number for performance)
+    const matches = await Listing.find({
+      $or: [
+        { title: searchRegex },
+        { location: searchRegex },
+        { country: searchRegex }
+      ]
+    })
+    .select("title location country image")
+    .limit(5)
+    .lean();
+
+    // Map matches to a unified structure
+    const results = matches.map(listing => ({
+      _id: listing._id,
+      title: listing.title,
+      location: listing.location,
+      country: listing.country,
+      image: listing.image?.url?.replace("/upload/", "/upload/q_auto,f_auto,w_100/")
+    }));
+
+    res.status(200).json(results);
   })
 );
 

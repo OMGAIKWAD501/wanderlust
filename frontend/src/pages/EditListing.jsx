@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
+import { useToast } from "../context/ToastContext";
 import ImageUpload from "../components/ImageUpload";
 import "../styles/ListingForm.css";
 
@@ -8,6 +9,7 @@ function EditListing() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
 
   const [listing, setListing] = useState({
     title: "",
@@ -93,14 +95,14 @@ function EditListing() {
     } catch (err) {
       console.error(err);
       if (err.response?.status === 401) {
-        alert("Session expired. Please log in again.");
+        toast.error("Session expired. Please log in again.");
         navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
       } else if (err.response?.status === 403) {
-        alert("You don't have permission to edit this listing.");
+        toast.error("You don't have permission to edit this listing.");
         navigate(`/listings/${id}`);
       } else {
         const errMsg = err.response?.data?.error || err.response?.data?.message || err.message || "Unknown error";
-        alert(`Update failed: ${errMsg}`);
+        toast.error(`Update failed: ${errMsg}`);
       }
     } finally {
       setLoading(false);
@@ -111,7 +113,7 @@ function EditListing() {
 
   const generateDescription = async () => {
     if (!listing.title) {
-      alert("Please enter a title first to generate a description.");
+      toast.error("Please enter a title first to generate a description.");
       return;
     }
     setGeneratingAI(true);
@@ -125,7 +127,7 @@ function EditListing() {
       setListing((prev) => ({ ...prev, description: res.data.description }));
     } catch (err) {
       console.error(err);
-      alert("Failed to generate description. Please try again.");
+      toast.error("Failed to generate description. Please try again.");
     } finally {
       setGeneratingAI(false);
     }

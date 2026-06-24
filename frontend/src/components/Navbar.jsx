@@ -1,13 +1,51 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./Navbar.css";
 
 function Navbar() {
   const [user, setUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  
   const navigate = useNavigate();
   const location = useLocation();
+  const searchRef = useRef(null);
+
+  // Handle click outside to close autocomplete
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Debounced fetch for autocomplete
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    const fetchSuggestions = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/listings/autocomplete?q=${encodeURIComponent(searchQuery.trim())}`);
+        if (response.ok) {
+          const data = await response.json();
+          setSuggestions(data);
+        }
+      } catch (err) {
+        console.error("Autocomplete fetch error:", err);
+      }
+    };
+
+    const debounceTimer = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -21,7 +59,15 @@ function Navbar() {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/users/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
@@ -31,11 +77,18 @@ function Navbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    setShowSuggestions(false);
     if (searchQuery.trim()) {
       navigate(`/listings?search=${encodeURIComponent(searchQuery.trim())}`);
     } else {
       navigate("/listings");
     }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSearchQuery(suggestion.location || suggestion.title);
+    setShowSuggestions(false);
+    navigate(`/listings/${suggestion._id}`);
   };
 
   return (
@@ -54,22 +107,57 @@ function Navbar() {
         </Link>
 
         {/* ── Centre: Search Bar ────────────────────────── */}
-        <form className="navbar-search" onSubmit={handleSearch}>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search destinations"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button type="submit" className="search-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <span className="search-btn-text">Search</span>
-          </button>
-        </form>
+        <div className="navbar-search-wrapper" ref={searchRef}>
+          <form className="navbar-search" onSubmit={handleSearch}>
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Search destinations"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => {
+                if (searchQuery.trim().length >= 2) setShowSuggestions(true);
+              }}
+            />
+            <button type="submit" className="search-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <span className="search-btn-text">Search</span>
+            </button>
+          </form>
+
+          {/* Autocomplete Dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="search-suggestions">
+              {suggestions.map((item) => (
+                <div 
+                  key={item._id} 
+                  className="suggestion-item"
+                  onClick={() => handleSuggestionClick(item)}
+                >
+                  <div className="suggestion-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                  <div className="suggestion-details">
+                    <div className="suggestion-location">{item.location}{item.country ? `, ${item.country}` : ""}</div>
+                    <div className="suggestion-title">{item.title}</div>
+                  </div>
+                  {item.image && (
+                    <img src={item.image} alt="" className="suggestion-img" />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* ── Right: Auth (Desktop) ─────────────────────── */}
         <div className="navbar-auth desktop-only">
@@ -84,7 +172,14 @@ function Navbar() {
 
           {user ? (
             <>
-              <span className="nav-user">Welcome, {user.email}</span>
+              <Link className="nav-user-profile" to={`/users/${user._id}`}>
+                {user.avatar?.url ? (
+                  <img src={user.avatar.url.replace("/upload/", "/upload/w_40,h_40,c_fill/")} alt="" className="nav-avatar" />
+                ) : (
+                  <div className="nav-avatar-placeholder">{user.username?.charAt(0).toUpperCase()}</div>
+                )}
+                <span>{user.username}</span>
+              </Link>
               <Link className="nav-host-link" style={{ marginLeft: "8px" }} to="/trips">
                 My Trips
               </Link>
@@ -123,7 +218,7 @@ function Navbar() {
       {isMenuOpen && (
         <div className="mobile-menu-overlay">
           <div className="mobile-menu-content">
-            <Link className="mobile-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} to="/create">
+            <Link className="mobile-nav-link" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} to="/create" onClick={() => setIsMenuOpen(false)}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -132,13 +227,14 @@ function Navbar() {
             </Link>
             {user ? (
               <>
-                <Link className="mobile-nav-link" to="/trips">My Trips</Link>
-                <button className="mobile-nav-link logout-btn" onClick={handleLogout}>Logout</button>
+                <Link className="mobile-nav-link" to={`/users/${user._id}`} onClick={() => setIsMenuOpen(false)}>Profile</Link>
+                <Link className="mobile-nav-link" to="/trips" onClick={() => setIsMenuOpen(false)}>My Trips</Link>
+                <button className="mobile-nav-link logout-btn" onClick={() => { setIsMenuOpen(false); handleLogout(); }}>Logout</button>
               </>
             ) : (
               <>
-                <Link className="mobile-nav-link" to={`/register?redirect=${encodeURIComponent(location.pathname + location.search)}`}>Sign up</Link>
-                <Link className="mobile-nav-link" to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`}>Log in</Link>
+                <Link className="mobile-nav-link" to={`/register?redirect=${encodeURIComponent(location.pathname + location.search)}`} onClick={() => setIsMenuOpen(false)}>Sign up</Link>
+                <Link className="mobile-nav-link" to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} onClick={() => setIsMenuOpen(false)}>Log in</Link>
               </>
             )}
           </div>

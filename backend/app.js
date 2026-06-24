@@ -4,12 +4,9 @@ const app = express();
 const mongoose = require("mongoose");
 const Listing = require("./models/listing.js"); 
 const path = require("path");
-const methodOverride = require("method-override");
-const ejsMate = require("ejs-mate");
 const review = require("./models/review.js"); 
 const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
-const {listingSchema,reviewSchema} = require("./schema.js");
 const cors = require("cors");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -33,16 +30,8 @@ main()
     .catch((err) => console.log(err));
 
 
-// ✅ FIX: engine FIRST
-app.engine("ejs", ejsMate);
-
-// // ✅ THEN view engine
-// app.set("view engine", "ejs");
-// app.set("views", path.join(__dirname, "views"));
-
 // Middleware
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
 // ================= CORS CONFIGURATION ================= //
@@ -56,7 +45,7 @@ if (process.env.FRONTEND_URL) {
 }
 
 app.use(cors({
-    origin: [...frontendOrigins, "http://localhost:5173"],
+    origin: frontendOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
@@ -71,16 +60,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 
 // Root
 app.get("/", (req, res) => {
-    res.send("hi, I am root");
-});
-
-app.get("/test", async (req, res) => {
-    let fakeuser = new User({ username: "testuser", email: "testuser@example.com" });
-    await fakeuser.save();
-    res.send(fakeuser);
-
-    let registeredUser = await User.register(new User({ username: "testuser2", email: "testuser2@example.com" }), "password123");
-    res.send(registeredUser);
+    res.send("WanderLust API is running");
 });
 
 // ================= ROUTES ================= //
@@ -109,7 +89,10 @@ app.post("/listings/:id/reviews", isLoggedIn, validateReview, wrapAsync(async (r
 app.delete("/listings/:id/reviews/:reviewId", isLoggedIn, wrapAsync(async (req, res) => {
     const { id, reviewId } = req.params;
     const foundReview = await review.findById(reviewId);
-    if (foundReview && foundReview.author && !foundReview.author.equals(req.user._id)) {
+    if (!foundReview) {
+        return res.status(404).json({ error: "Review not found" });
+    }
+    if (foundReview.author && !foundReview.author.equals(req.user._id)) {
         return res.status(403).json({ error: "You don't have permission to delete this review" });
     }
     await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
@@ -117,9 +100,9 @@ app.delete("/listings/:id/reviews/:reviewId", isLoggedIn, wrapAsync(async (req, 
     res.status(200).json({ message: "Review deleted" });
 }));
 
-// app.all("*", (req, res, next) => {
-//     next(new ExpressError(404, "Page Not Found!"));
-// });
+app.all("/{*splat}", (req, res, next) => {
+    next(new ExpressError(404, "Page Not Found!"));
+});
 
 app.use((err,req, res, next) => {
     let {statusCode = 500, message ="something went wrong"} = err;
